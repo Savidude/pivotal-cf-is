@@ -1,20 +1,20 @@
 # BOSH release for WSO2 Identity Server deployment pattern 1
 
-This directory contains the BOSH release implementation for WSO2 Identity Server 5.7.0
-[deployment pattern 1](https://docs.wso2.com/display/IS541/Deployment+Patterns#DeploymentPatterns-Pattern1-HAclustereddeploymentofWSO2IdentityServer).
+This directory contains the BOSH release implementation and PCF tile creation resources for WSO2 Identity Server 5.7.0
+[deployment pattern 1](https://docs.wso2.com/display/IS570/Deployment+Patterns#DeploymentPatterns-Pattern1-HAclustereddeploymentofWSO2IdentityServer).
 
 ![WSO2 Identity Server 5.7.0 deployment pattern 1](images/pattern-1.png)
 
 The following sections provide general steps required for managing the WSO2 Identity Server 5.7.0 deployment pattern 1
 BOSH release in a BOSH environment deployed in the desired IaaS.
 
-For step-by-step guidelines to manage the BOSH release in specific environments, refer the following:
+For step-by-step guidelines to manage the BOSH release and build the PCF tile, refer the following:
 
 ## Contents
 
 * [Prerequisites](#prerequisites)
-* [Create Release](#create-release)
-* [Deploy Release](#deploy-release)
+* [Create the BOSH Release](#create-the-bosh-release)
+* [Build the CF tile](#build-the-cf-tile)
 * [Output](#output)
 * [Delete Deployment](#delete-deployment)
 * [BOSH Release Structure](#bosh-release-structure)
@@ -22,7 +22,7 @@ For step-by-step guidelines to manage the BOSH release in specific environments,
 
 ## Prerequisites
 
-1. Install the following software:
+1. Install the following software.
 
     - [BOSH Command Line Interface (CLI) v2+](https://bosh.io/docs/cli-v2.html)
     - [WSO2 Update Manager (WUM)](http://wso2.com/wum)
@@ -33,8 +33,10 @@ For step-by-step guidelines to manage the BOSH release in specific environments,
 
     - WSO2 Identity Server 5.7.0 WUM updated product distribution
     - [Java Development Kit (JDK) 1.8](https://adoptopenjdk.net/archive.html)
-    - Relevant Java Database Connectivity (JDBC) connector (e.g. [MySQL JDBC driver](https://dev.mysql.com/downloads/connector/j/5.1.html)
-    if the external DBMS used is MySQL)
+    - Relevant Java Database Connectivity (JDBC) connectors
+        - [mssql-jdbc-7.0.0.jre8.jar](https://www.microsoft.com/en-us/download/details.aspx?id=57175)
+        - [mysql-connector-java-5.1.45-bin.jar](https://dev.mysql.com/downloads/connector/j/)
+
 
 3. Clone this Git repository.
 
@@ -53,16 +55,13 @@ In order to create the BOSH release for deployment pattern 1, you must follow th
     ```
     cd pivotal-cf-is/pattern-1/bosh-release/
     ```   
+2. Copy the software obtained in step 2 of [Prerequisites](#prerequisites) to the `dist` folder.
 
-2. Create the BOSH release.
+3. Create the BOSH release and export it to a tarball.
     ```
     ./create.sh
     ```
-3. Export the BOSH release as a tarball.
-    ```
-    ./export.sh
-    ```
-## Build the CF tile.
+## Build the CF tile
 
 In order to build the CF tile for deployment pattern 1, follow the below steps.
 
@@ -73,11 +72,11 @@ In order to build the CF tile for deployment pattern 1, follow the below steps.
     cd ../tile/
     ```   
 
-2. Build the tile.
+2. Navigate to pivotal-cf-is/pattern-1/tile directory and execute build.sh
     ```
     ./build.sh
     ```
-3. The tile will be created in the root of the ```product``` folder under tile directory.
+    Executing this script will generate the tile for WSO2 IS 5.7.0 deployment. The tile will be created in the root of the ```product``` folder under tile directory.
 
 4. Upload the tile to the Pivotal Environment and configure it.
 
@@ -100,7 +99,7 @@ To find the IP addresses of created instances via the BOSH CLI and access the WS
 3. SSH into the vm as follows.
 
     ```
-    bosh -d <Name> ssh <Instance>
+    bosh -d <name> ssh <instance>
     ```
 
 4. Access the WSO2 Identity Server management console URL using the static IPs of the created instances.
@@ -114,7 +113,7 @@ To find the IP addresses of created instances via the BOSH CLI and access the WS
 1. Delete the deployment.
 
     ```
-    bosh -e <environment-alias> -d wso2is-pattern-1 delete-deployment
+    bosh -e <environment-alias> -d <name> delete-deployment
     ```
 
 2. **[Optional]** Cleanup the BOSH release, stemcell, disks and etc.
@@ -130,14 +129,13 @@ Structure of the directories and files of the BOSH release is as follows:
 ```
 └── bosh-release
     ├── config
+    ├── deployment
+    ├── dist
     ├── images
-    ├── manifests
     ├── jobs
     ├── packages
     ├── src
-    ├── create.sh
-    ├── export.sh
-    └── README.md
+    └── create.sh
 ```
 
 ## References
